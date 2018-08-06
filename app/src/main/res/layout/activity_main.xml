@@ -10,8 +10,58 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.jun.currency_convertor.MainActivity">
 
-    <TextView
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:layout_marginTop="71dp"
+        android:id="@+id/currency_input"
+        android:hint="Enter Amount"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="196dp"
+        android:layout_marginStart="196dp"
+        android:id="@+id/currency_1"
+        android:layout_alignBaseline="@+id/currency_input"
+        android:layout_alignBottom="@+id/currency_input"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/currency_input"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="75dp"
+        android:layout_marginStart="75dp"
+        android:layout_marginTop="88dp"
+        android:id="@+id/textView2" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/currency_2"
+        android:layout_alignTop="@+id/textView2"
+        android:layout_alignLeft="@+id/currency_1"
+        android:layout_alignStart="@+id/currency_1" />
+
+    <Button
+        android:text="Convert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/convert_button"
+        android:layout_marginBottom="51dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/currency_input"
+        android:layout_alignEnd="@+id/currency_input"
+        android:onClick="ConvertCurrency" />
+
 </RelativeLayout>
