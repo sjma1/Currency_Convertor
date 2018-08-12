@@ -122,7 +122,15 @@ public class MainActivity extends AppCompatActivity {
 
     //Given the URL, use the JSON to get the conversion rate for the currency
     private static double Get_Conversion_Rate(JsonObject json_object, String converted_currency) {
-        return 0;
+        try {
+            double temp = json_object.get("rates").getAsJsonObject().get(converted_currency).getAsDouble();
+            return temp;
+        }
+        catch(Exception e) {
+            System.out.println("TYPE CAST ERROR?");
+            throw e;
+        }
+
     }
 
 

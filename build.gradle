@@ -14,8 +14,18 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {                                  // <-- Add this
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+    }
+    repositories {
         jcenter()
     }
+
+
 }
 
 task clean(type: Delete) {
