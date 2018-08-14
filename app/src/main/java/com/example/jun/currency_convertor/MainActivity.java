@@ -12,10 +12,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonElement;
@@ -25,11 +33,64 @@ import com.google.gson.JsonObject;
 
 public class MainActivity extends AppCompatActivity {
     private static final String BASE_URL = "https://frankfurter.app";
+    public  EditText edit;
+    public  TextView text;
+    public static String final_url;
+    private Spinner base_currency_spinner;
+    private Spinner converted_currency_spinner;
+    private Intent intent;
+
+    public void doConversion(View view) {
+
+        String base_amount_str = edit.getText().toString();
+        //Base Case, User pressed Convert without any input
+        if(TextUtils.isEmpty(base_amount_str)) {
+            edit.setError("Amount must be entered first!");
+        }
+        else {
+            //Get user inputs
+            double base_amount = Double.parseDouble(base_amount_str);
+
+            String base_currency = Get_Converted_Currency_Abbreviation(base_currency_spinner.getSelectedItem().toString());
+            String converted_currency = Get_Converted_Currency_Abbreviation(converted_currency_spinner.getSelectedItem().toString());
+
+
+            //JSON object based on user selected currencies
+            try {
+                final_url  = Get_Conversion_URL(base_currency, converted_currency);
+                URL url = new URL(final_url);
+                URLConnection request = url.openConnection();
+                JsonParser j_parser = new JsonParser(); //GSON library exclusive
+                request.getContent();
+
+                //Converts the content into an InputStream and then converts InputStream into a JSONElement
+                //JsonElement root = j_parser.parse(new InputStreamReader((InputStream) request.getContent()));   //ERROR LINE!!!!!
+
+
+                //JsonObject json_object = Get_JSON_Object(Get_Conversion_URL(base_currency, converted_currency));
+               // double output = base_amount * Get_Conversion_Rate(json_object, converted_currency);
+                //text.setText(Double.toString(output));
+            }
+            catch(Exception e) {
+                Log.e("MYAPP", "exception", e);
+                System.out.println(e.getMessage());
+            }
+
+
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        edit = (EditText) findViewById(R.id.currency_input);
+        text = (TextView) findViewById(R.id.converted_amount);
+        base_currency_spinner = (Spinner) findViewById(R.id.currency_1);
+        converted_currency_spinner = (Spinner) findViewById(R.id.currency_2);
+
 
         String currencies_filename = "Currencies.txt";
 
@@ -84,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Given the base currency and the currency we will convert to, returns the URL that will
     //return the JSON required for the conversion
-    private static String Get_Conversion_URL(String base_currency, String converted_currency_abbreviation) {
+    public static String Get_Conversion_URL(String base_currency, String converted_currency_abbreviation) {
         StringBuilder temp = new StringBuilder();
         temp.append(BASE_URL);
         temp.append("/current?from=");
@@ -96,32 +157,30 @@ public class MainActivity extends AppCompatActivity {
 
     //Splits the String and returns the first index
     //ex: "USD United States Dollar" will give us "USD"
-    private static String Get_Converted_Currency_Abbreviation(String converted_currency) {
+    public static String Get_Converted_Currency_Abbreviation(String converted_currency) {
         String [] temp = converted_currency.split(" ");
         return temp[0];
     }
 
     //Given the URL, return the corresponding JSON object
-    private static JsonObject Get_JSON_Object(String string_url) throws IOException {
+    public static JsonObject Get_JSON_Object(String string_url) throws IOException {
         try {
             URL url = new URL(string_url);
             URLConnection request = url.openConnection();
             JsonParser j_parser = new JsonParser(); //GSON library exclusive
 
             //Converts the content into an InputStream and then converts InputStream into a JSONElement
-            JsonElement root = j_parser.parse(new InputStreamReader((InputStream) request.getContent()));
+            JsonElement root = j_parser.parse(new InputStreamReader((InputStream) request.getContent()));   //ERROR LINE!!!!!
             return root.getAsJsonObject();
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
             throw e;
         }
-
-
     }
 
     //Given the URL, use the JSON to get the conversion rate for the currency
-    private static double Get_Conversion_Rate(JsonObject json_object, String converted_currency) {
+    public static double Get_Conversion_Rate(JsonObject json_object, String converted_currency) {
         try {
             double temp = json_object.get("rates").getAsJsonObject().get(converted_currency).getAsDouble();
             return temp;
@@ -132,6 +191,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
 
 
 }
