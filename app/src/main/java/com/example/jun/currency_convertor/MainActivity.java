@@ -33,15 +33,15 @@ import com.google.gson.JsonObject;
 
 public class MainActivity extends AppCompatActivity {
     private static final String BASE_URL = "https://frankfurter.app";
-    public  EditText edit;
-    public  TextView text;
-    public static String final_url;
+    public EditText edit;
+    public TextView text;
     private Spinner base_currency_spinner;
     private Spinner converted_currency_spinner;
+    private ArrayAdapter<String> adapter;
     private Intent intent;
 
+    //On Click method for the Convert Button; Converts base amount and outputs converted amount into TextView
     public void doConversion(View view) {
-
         String base_amount_str = edit.getText().toString();
         //Base Case, User pressed Convert without any input
         if(TextUtils.isEmpty(base_amount_str)) {
@@ -50,14 +50,20 @@ public class MainActivity extends AppCompatActivity {
         else {
             //Get user inputs
             double base_amount = Double.parseDouble(base_amount_str);
-
             String base_currency = Get_Converted_Currency_Abbreviation(base_currency_spinner.getSelectedItem().toString());
             String converted_currency = Get_Converted_Currency_Abbreviation(converted_currency_spinner.getSelectedItem().toString());
 
+            //Combines user selections to get the URL that contains the JSON used for user selected conversion
+            String final_url  = Get_Conversion_URL(base_currency, converted_currency);
 
+            //Connects to URL and fetches data in the background, also updates the TextView with converted amount
+            FetchJSON process =  new FetchJSON(this, base_amount, final_url, converted_currency);
+            process.execute();
+
+            /*
             //JSON object based on user selected currencies
             try {
-                final_url  = Get_Conversion_URL(base_currency, converted_currency);
+                String final_url  = Get_Conversion_URL(base_currency, converted_currency);
                 URL url = new URL(final_url);
                 URLConnection request = url.openConnection();
                 JsonParser j_parser = new JsonParser(); //GSON library exclusive
@@ -76,9 +82,18 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println(e.getMessage());
             }
 
+            */
 
         }
 
+    }
+
+    //On Click method for Reset Button; Clears text fields and sets Sliders back to USD -> Euro
+    public void Clear(View view) {
+        edit.getText().clear();
+        text.setText(null);
+        base_currency_spinner.setSelection(adapter.getPosition("USD \tUnited States Dollar"));
+        converted_currency_spinner.setSelection(adapter.getPosition("EUR \tEuro"));
     }
 
     @Override
@@ -99,20 +114,20 @@ public class MainActivity extends AppCompatActivity {
         try
         {
             ArrayList<String> currencies = this.readLines(currencies_filename);
-            Spinner c1_spinner = (Spinner) findViewById(R.id.currency_1);
-            Spinner c2_spinner = (Spinner) findViewById(R.id.currency_2);
+            base_currency_spinner = (Spinner) findViewById(R.id.currency_1);
+            converted_currency_spinner = (Spinner) findViewById(R.id.currency_2);
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+            adapter = new ArrayAdapter<String>(this,
                     android.R.layout.simple_spinner_item,
                     currencies);
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
             //Give spinner adapter values and set their default positions to USD and EUR
-            c1_spinner.setAdapter(adapter);
-            c2_spinner.setAdapter(adapter);
-            c1_spinner.setSelection(adapter.getPosition("USD \tUnited States Dollar"));
-            c2_spinner.setSelection(adapter.getPosition("EUR \tEuro"));
+            base_currency_spinner.setAdapter(adapter);
+            converted_currency_spinner.setAdapter(adapter);
+            base_currency_spinner.setSelection(adapter.getPosition("USD \tUnited States Dollar"));
+            converted_currency_spinner.setSelection(adapter.getPosition("EUR \tEuro"));
         }
         catch(IOException e)
         {
